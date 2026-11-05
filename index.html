@@ -107,6 +107,14 @@ button{font:inherit; color:inherit}
 .leaders-rank > li{border-bottom:1px dotted var(--edge-dim); padding-bottom:12px}
 .leaders-rank > li .lr-why, .leaders-rank > li .lr-bio{padding-left:calc(1.4rem + 32px + 30px)}
 .lr-bio{margin-top:6px; font-size:.92rem}
+.ver{font-size:.85rem; color:var(--faint)}
+.versions{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.versions li{display:grid; grid-template-columns:4.2rem 11rem minmax(0,1fr); gap:4px 12px; padding-bottom:10px; border-bottom:1px dotted var(--edge-dim)}
+.versions .ver-n{font-weight:700; color:var(--dim); font-variant-numeric:tabular-nums}
+.versions .cur .ver-n{color:var(--gold)}
+.versions .ver-d{color:var(--faint); font-size:.92rem}
+.versions .ver-t{color:var(--dim)}
+@media (max-width:560px){ .versions li{grid-template-columns:4.2rem minmax(0,1fr)} .versions .ver-t{grid-column:1 / -1} }
 .lr-it{display:block; margin-top:4px}
 .lr-it:first-of-type{display:inline; margin-top:0}
 @media (max-width:480px){ .leaders-rank > li .lr-why, .leaders-rank > li .lr-bio{padding-left:10px} }
@@ -473,6 +481,7 @@ details.axes-box[open] summary::after{content:"−"}
       <p>Projeto de fã, sem vínculo com a Blizzard Entertainment. World of Warcraft e WoW Forever são marcas da Blizzard; o selo desta página foi desenhado para o site e não é o logo oficial.</p>
       <p>O resultado combinado só considera combinações que existem no WoW Forever. As frases das perguntas são originais, inspiradas nos modelos citados, mas não formam um instrumento validado. Use o resultado como espelho e diversão, não como diagnóstico. Os ícones foram desenhados para esta página. As habilidades aparecem com o nome em português e, na janelinha, também em inglês; quando a tradução oficial ainda não foi confirmada, a janelinha avisa.</p>
       </section>
+      <section class="section" id="s-versions"><h2>Histórico de versões</h2><div id="about-versions"></div></section>
       <section class="section" id="s-sources"><h2>Fontes</h2>
     <ul class="sources">
       <li><a href="https://warcraft.wiki.gg/wiki/Forever" target="_blank" rel="noopener">World of Warcraft: Forever, Warcraft Wiki</a></li>
@@ -526,6 +535,7 @@ details.axes-box[open] summary::after{content:"−"}
 
   <footer class="foot" id="foot">
     <p>Projeto de fã, sem vínculo com a Blizzard Entertainment. World of Warcraft e WoW Forever são marcas da Blizzard. <button class="btn-link inline" type="button" data-act="about">Como funciona e fontes</button></p>
+    <p class="ver" id="ver"></p>
   </footer>
 </div>
 </div>
@@ -2781,8 +2791,26 @@ function icon(id, color, size, extraClass){
     $("list").innerHTML = h;
     if(k === "chars") applyCharFilter();
   }
+  /* ---------- versão do site ---------- */
+  var VERSAO = {v:"1.0.0", data:"5 de novembro de 2026"};
+  var HISTORICO = [
+    ["1.0.0", "5 de novembro de 2026", "Revisão com as notas de lançamento do WoW Forever (versão 1.60.1 do jogo): habilidades raciais, talentos e habilidades de classe atualizados. O site passa a mostrar o número da versão."],
+    ["0.8.0", "22 de outubro de 2026", "No resultado de facção, cada líder mostra em que vocês se parecem e em que divergem."],
+    ["0.7.0", "22 de outubro de 2026", "Menu fixo no topo; páginas de Raças, Classes, Facções e Personagens, com busca; página Como funciona; atalhos \u201cNesta página\u201d; botão para sair do teste no meio."],
+    ["0.6.0", "22 de outubro de 2026", "Celonatos explicados: linha do tempo, perguntas e respostas, glossário e a relação com cada povo de Azeroth."],
+    ["0.5.0", "22 de outubro de 2026", "Biografias de 65 personagens e botão Voltar que guarda a página e a posição."],
+    ["0.4.0", "outubro de 2026", "Links entre raças e classes, janelinha das habilidades em português e inglês, explicação de por que cada raça pode ou não ser cada classe e selo do Forever na página inicial."],
+    ["0.3.0", "outubro de 2026", "Teste de facção, resultado combinado e testes mais curtos (24 e 16 perguntas)."],
+    ["0.2.0", "outubro de 2026", "Teste de classe, ícones de raças e classes e revisão das combinações do Forever."],
+    ["0.1.0", "outubro de 2026", "Primeira versão, com o teste de raça."]
+  ];
+  function renderVersion(){
+    if($("ver")) $("ver").innerHTML = 'Versão ' + VERSAO.v + ' · atualizado em ' + VERSAO.data + ' · <button class="btn-link inline" type="button" data-act="about" data-anchor="s-versions">O que mudou</button>';
+  }
   function renderAbout(){
     $("about-nav").innerHTML = topnav("Sobre o site");
+    if($("about-versions") && !$("about-versions").innerHTML) $("about-versions").innerHTML = '<p class="dim small">Versão atual: <b>' + VERSAO.v + '</b>, de ' + VERSAO.data + '.</p><ol class="versions">' +
+      HISTORICO.map(function(x, i){ return '<li' + (i === 0 ? ' class="cur"' : '') + '><span class="ver-n">v' + x[0] + '</span><span class="ver-d">' + esc(x[1]) + '</span><span class="ver-t">' + esc(x[2]) + '</span></li>'; }).join("") + '</ol>';
     if(!$("about-axes").innerHTML) $("about-axes").innerHTML = ORDER.map(function(tid){
       var T = TESTS[tid]; return '<details class="axes-box"><summary>' + T.label + ': ' + T.axes.length + ' eixos</summary>' + axesList(T) + '</details>';
     }).join("");
@@ -3194,7 +3222,7 @@ function icon(id, color, size, extraClass){
     else if(a === "see"){ go({name:"result", t:t, sel:b.getAttribute("data-id")}); }
     else if(a === "ficha"){ var fv = {name:"ficha", k:b.getAttribute("data-k"), id:b.getAttribute("data-id")}; if(b.getAttribute("data-anchor")) fv.anchor = b.getAttribute("data-anchor"); go(fv); }
     else if(a === "list"){ var lv = {name:"list", k:b.getAttribute("data-k"), f:"all", q:""}; if(b.getAttribute("data-anchor")) lv.anchor = b.getAttribute("data-anchor"); go(lv); }
-    else if(a === "about"){ go({name:"about"}); }
+    else if(a === "about"){ var av = {name:"about"}; if(b.getAttribute("data-anchor")) av.anchor = b.getAttribute("data-anchor"); go(av); }
     else if(a === "jump"){ scrollToEl($(b.getAttribute("data-to")), true); }
     else if(a === "chf"){ view.f = b.getAttribute("data-f"); applyCharFilter(); }
     else if(a === "home"){ go({name:"home"}); }
@@ -3222,6 +3250,7 @@ function icon(id, color, size, extraClass){
   });
 
   /* ---------- início ---------- */
+  renderVersion();
   function start(data){
     var v = data && data.view, ok = false;
     if(data && data.hist && data.hist.length) HIST = data.hist;
